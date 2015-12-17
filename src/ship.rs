@@ -2,7 +2,8 @@ use std::rc::Rc;
 
 use input::{ Key, Input };
 use physics::Body;
-use entity::{ Entity, State, Spawn };
+use entity::{ Entity, State };
+use render::{ Batch, Resources, Builder };
 
 pub struct ShipMeta {
     init_score: u32,
@@ -44,20 +45,41 @@ impl Default for ShipMeta {
     }
 }
 
-pub struct Ship {
-    body: Body,
+pub struct Ship<R> 
+    where R: Resources
+{
+    pub body: Body,
     state: State,
 
-    score: u32,
-    power: u32,
-    health: f32,
-    energy: f32,
+    pub score: u32,
+    pub power: u32,
+    pub health: f32,
+    pub energy: f32,
 
     meta: Rc<ShipMeta>,
+    batch: Batch<R>,
 }
 
-impl Ship {
-    fn new(body: Body, meta: Rc<ShipMeta>) -> Ship {
+const SHIP_SHAPE: &'static [[f32; 2]] = &[
+    [0.05, 15.0],
+    [0.6, 5.0],
+    [0.7, 15.0],
+    [0.8, 20.0],
+    [0.85, 10.0],
+    [1.15, 10.0],
+    [1.2, 20.0],
+    [1.3, 15.0],
+    [1.4, 5.0],
+    [1.95, 15.0],
+    [0.05, 15.0],
+];
+
+impl<R> Ship<R> 
+    where R: Resources
+{
+    pub fn new<B>(body: Body, meta: Rc<ShipMeta>, builder: &mut B) -> Ship<R> 
+        where B: Builder<R>
+    {
         Ship {
             body: body,
             state: State::Alive,
@@ -68,6 +90,7 @@ impl Ship {
             energy: meta.max_energy,
 
             meta: meta,
+            batch: builder.new_batch(SHIP_SHAPE, [ 1.0, 1.0, 1.0, 1.0 ]),
         }
     }
 
@@ -95,10 +118,15 @@ impl Ship {
         let torque = self.meta.angular_thrust * self.consume(energy) * dt;
         self.body.apply_torque(torque * dir);
     }
+
+    fn fire(&mut self, dt: f32, spawn: &mut Vec<Box<Entity<R>>>) {
+    }
 }
 
-impl Entity for Ship {
-    fn think(&mut self, dt: f32, input: &Input) -> (State, Spawn) {
+impl<R> Entity<R> for Ship<R> 
+    where R: Resources
+{
+    fn think(&mut self, dt: f32, input: &Input, spawn: &mut Vec<Box<Entity<R>>>) -> State {
         if input.pressed(Key::Forward) {
             self.accel(dt, 0.0);
         }
@@ -112,7 +140,7 @@ impl Entity for Ship {
             self.turn(dt, -1.0);
         }
         if input.pressed(Key::Fire) {
-            // FIXME
+            self.fire(dt, spawn);
         }
 
         self.body.think(dt);
@@ -123,10 +151,10 @@ impl Entity for Ship {
             self.take_damage(damage);
         }
 
-        (self.state, Vec::new())
+        self.state
     }
 
-    fn collide(&mut self, other: &mut Entity) {
+    fn collide(&mut self, other: &mut Entity<R>) {
     }
 
     fn take_damage(&mut self, damage: f32) {
@@ -136,5 +164,9 @@ impl Entity for Ship {
         } else {
             self.health -= damage;
         }
+    }
+
+    fn get_batch(&mut self) -> &Batch<R> {
+        &self.batch
     }
 }
