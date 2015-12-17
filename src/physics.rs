@@ -2,7 +2,9 @@ use std::f32::consts::PI;
 
 use cgmath::{ rad, Vector, Matrix };
 
+#[allow(non_camel_case_types)]
 pub type v32 = ::cgmath::Vector2<f32>;
+#[allow(non_camel_case_types)]
 pub type m32 = ::cgmath::Matrix2<f32>;
 
 pub struct Body {
