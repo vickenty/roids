@@ -3,7 +3,6 @@ use std::rc::Rc;
 use input::{ Key, Input };
 use physics::Body;
 use entity::{ Entity, State };
-use render::{ Batch, Resources, Builder };
 
 pub struct ShipMeta {
     init_score: u32,
@@ -45,8 +44,7 @@ impl Default for ShipMeta {
     }
 }
 
-pub struct Ship<R> 
-    where R: Resources
+pub struct Ship
 {
     pub body: Body,
     state: State,
@@ -57,7 +55,6 @@ pub struct Ship<R>
     pub energy: f32,
 
     meta: Rc<ShipMeta>,
-    batch: Batch<R>,
 }
 
 const SHIP_SHAPE: &'static [[f32; 2]] = &[
@@ -74,11 +71,9 @@ const SHIP_SHAPE: &'static [[f32; 2]] = &[
     [0.05, 15.0],
 ];
 
-impl<R> Ship<R> 
-    where R: Resources
+impl Ship
 {
-    pub fn new<B>(body: Body, meta: Rc<ShipMeta>, builder: &mut B) -> Ship<R> 
-        where B: Builder<R>
+    pub fn new(body: Body, meta: Rc<ShipMeta>) -> Ship
     {
         Ship {
             body: body,
@@ -90,7 +85,6 @@ impl<R> Ship<R>
             energy: meta.max_energy,
 
             meta: meta,
-            batch: builder.new_batch(SHIP_SHAPE, [ 1.0, 1.0, 1.0, 1.0 ]),
         }
     }
 
@@ -119,14 +113,13 @@ impl<R> Ship<R>
         self.body.apply_torque(torque * dir);
     }
 
-    fn fire(&mut self, dt: f32, spawn: &mut Vec<Box<Entity<R>>>) {
+    fn fire(&mut self, dt: f32, spawn: &mut Vec<Box<Entity>>) {
     }
 }
 
-impl<R> Entity<R> for Ship<R> 
-    where R: Resources
+impl Entity for Ship
 {
-    fn think(&mut self, dt: f32, input: &Input, spawn: &mut Vec<Box<Entity<R>>>) -> State {
+    fn think(&mut self, dt: f32, input: &Input, spawn: &mut Vec<Box<Entity>>) -> State {
         if input.pressed(Key::Forward) {
             self.accel(dt, 0.0);
         }
@@ -154,7 +147,7 @@ impl<R> Entity<R> for Ship<R>
         self.state
     }
 
-    fn collide(&mut self, other: &mut Entity<R>) {
+    fn collide(&mut self, other: &mut Entity) {
     }
 
     fn take_damage(&mut self, damage: f32) {
@@ -164,9 +157,5 @@ impl<R> Entity<R> for Ship<R>
         } else {
             self.health -= damage;
         }
-    }
-
-    fn get_batch(&mut self) -> &Batch<R> {
-        &self.batch
     }
 }

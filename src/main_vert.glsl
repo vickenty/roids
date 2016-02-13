@@ -1,9 +1,8 @@
 #version 110
 
 attribute vec2 vertex_pos;
-uniform mat4 view_matrix;
-uniform mat4 proj_matrix;
+uniform mat2 view_matrix;
 
 void main() {
-    gl_Position = vertex_pos * mat;
+    gl_Position = vec4(vertex_pos * view_matrix, 0, 0);
 }

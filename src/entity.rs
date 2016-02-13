@@ -1,5 +1,4 @@
 use input::Input;
-use render::{ Batch, Resources };
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum State {
@@ -7,24 +6,22 @@ pub enum State {
     Dead,
 }
 
-pub trait Entity<R> where R: Resources {
-    fn think(&mut self, dt: f32, &Input, born: &mut Vec<Box<Entity<R>>>) -> State;
-    fn collide(&mut self, other: &mut Entity<R>);
+pub trait Entity {
+    fn think(&mut self, dt: f32, &Input, born: &mut Vec<Box<Entity>>) -> State;
+    fn collide(&mut self, other: &mut Entity);
     fn take_damage(&mut self, f32);
-    fn get_batch(&mut self) -> &Batch<R>;
 }
 
-pub struct Engine<R> {
-    entities: Vec<Box<Entity<R>>>,
+pub struct Engine {
+    entities: Vec<Box<Entity>>,
 
-    born: Vec<Box<Entity<R>>>,
+    born: Vec<Box<Entity>>,
     dead: Vec<usize>,
 }
 
-impl<R> Engine<R>
-    where R: Resources
+impl Engine
 {
-    pub fn new() -> Engine<R> {
+    pub fn new() -> Engine {
         Engine {
             entities: Vec::new(),
             born: Vec::new(),
@@ -32,7 +29,7 @@ impl<R> Engine<R>
         }
     }
 
-    pub fn add(&mut self, entity: Box<Entity<R>>) {
+    pub fn add(&mut self, entity: Box<Entity>) {
         self.entities.push(entity);
     }
 

@@ -5,7 +5,8 @@ authors = ["Vickenty Fesunov <kent@setattr.net>"]
 
 [dependencies]
 cgmath = "0.6"
-gfx = "0.8"
 glutin = "0.4"
-gfx_window_glutin = "*"
+gfx = "0.9"
+gfx_window_glutin = "0.9"
+gfx_device_gl = "0.8"
 time = "0.1"

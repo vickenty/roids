@@ -3,6 +3,7 @@ extern crate cgmath;
 extern crate gfx;
 extern crate glutin;
 extern crate gfx_window_glutin;
+extern crate gfx_device_gl;
 extern crate time;
 
 mod input;
@@ -17,27 +18,17 @@ use glutin::Event;
 use entity::Entity;
 
 fn main() {
-    let window = glutin::WindowBuilder::new()
-        .with_title("Roids".to_owned())
-        .with_gl(glutin::GL_CORE)
-        .with_dimensions(600, 600)
-        .with_vsync()
-        .build()
-        .unwrap();
-
-    let mut renderer = Renderer::new(gfx_window_glutin::init(window));
+    let mut renderer = Renderer::new();
     let mut input = input::Input::new();
     let mut engine = entity::Engine::new();
 
     let ship_meta = Rc::new(ship::ShipMeta::default());
-    let ship = ship::Ship::new(Default::default(), ship_meta.clone(), &mut renderer);
+    let ship = ship::Ship::new(Default::default(), ship_meta.clone());
     engine.add(Box::new(ship));
 
     let mut t0 = time::precise_time_s();
 
     'main: loop {
-        renderer.draw();
-
         let t1 = time::precise_time_s();
         let dt = t1 - t0;
 
