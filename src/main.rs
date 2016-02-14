@@ -43,8 +43,10 @@ fn main() {
             input.handle_event(&ev);
         }
 
+        shape.set_transform(100.0, -100.0, 0.5);
+
         renderer.clear();
-        renderer.draw_shape(&shape);
+        renderer.draw_shape(&mut shape);
         renderer.finish();
 
         t0 = t1;

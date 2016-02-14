@@ -42,7 +42,7 @@ impl Body {
 
     pub fn to_world(&mut self, p: v32) -> v32 {
         let m = m32::from_angle(rad(self.a * PI));
-        self.p + m.mul_v(p)
+        self.p + m * p
     }
 }
 

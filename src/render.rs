@@ -1,9 +1,13 @@
 use glutin;
 use gfx;
 use gfx_window_glutin;
+use cgmath;
 
 use gfx::traits::Device;
 use gfx::traits::FactoryExt;
+use cgmath::{ SquareMatrix, Matrix3, vec3, rad };
+
+use std::f32::consts::PI;
 
 pub mod backend {
     use gfx_device_gl;
@@ -38,7 +42,6 @@ gfx_pipeline!{
 }
 
 pub fn from_polar(p: &[f32; 2]) -> [f32; 2] {
-    use std::f32::consts::PI;
     [
         (PI * p[0]).cos() * p[1], 
         (PI * p[0]).sin() * p[1],
@@ -48,9 +51,19 @@ pub fn from_polar(p: &[f32; 2]) -> [f32; 2] {
 pub struct Shape {
     data: Pipeline::Data<backend::Resources>,
     slice: gfx::Slice<backend::Resources>,
+    transform: Matrix3<f32>,
+}
+
+impl Shape {
+    pub fn set_transform(&mut self, x: f32, y: f32, r: f32) {
+        self.transform = Matrix3::from_angle_z(rad(r * PI));
+        self.transform.z = vec3(x, y, 0.0);
+    }
 }
 
 pub struct Renderer {
+    transform: Matrix3<f32>,
+
     window: glutin::Window,
     device: backend::Device,
     factory: backend::Factory,
@@ -97,7 +110,17 @@ impl Renderer {
 
         let encoder = factory.create_encoder();
 
+        let transform = {
+            let scl = 1.0 / 600.0;
+            [
+                [ scl, 0.0, 0.0 ],
+                [ 0.0, scl, 0.0 ],
+                [ 0.0, 0.0, 0.0 ],
+            ]
+        };
+
         Renderer {
+            transform: transform.into(),
             window: window,
             device: device,
             factory: factory,
@@ -118,13 +141,14 @@ impl Renderer {
         let data = Pipeline::Data {
             vbuf: vbuf,
             color: [ 1.0; 4 ],
-            trans: [ [ 1.0e-2, 0.0, 0.0 ], [ 0.0, 1.0e-2, 0.0 ], [ 0.5, -0.5, 0.0 ] ],
+            trans: Matrix3::identity().into(),
             targ_color: self.targ_color.clone(),
         }; 
 
         Shape {
             data: data,
             slice: slice,
+            transform: Matrix3::identity(),
         }
     }
 
@@ -136,7 +160,8 @@ impl Renderer {
         self.create_shape(&vdata)
     }
 
-    pub fn draw_shape(&mut self, shape: &Shape) {
+    pub fn draw_shape(&mut self, shape: &mut Shape) {
+        shape.data.trans = (self.transform * shape.transform).into();
         self.encoder.draw(&shape.slice, &self.pipeline, &shape.data);
     }
 
