@@ -1,7 +1,18 @@
 use glutin;
 use gfx;
 use gfx_window_glutin;
-use gfx_device_gl;
+
+use gfx::traits::Device;
+use gfx::traits::FactoryExt;
+
+pub mod backend {
+    use gfx_device_gl;
+
+    pub type Device = gfx_device_gl::Device;
+    pub type Resources = gfx_device_gl::Resources;
+    pub type Factory = gfx_device_gl::Factory;
+    pub type CommandBuffer = gfx_device_gl::command::CommandBuffer;
+}
 
 gfx_vertex_struct! {
     Vertex {
@@ -9,39 +20,60 @@ gfx_vertex_struct! {
     }
 }
 
+impl Vertex {
+    pub fn new(p: [f32; 2]) -> Vertex {
+        Vertex {
+            pos: p
+        }
+    }
+}
+
 gfx_pipeline!{
     Pipeline {
+        vbuf: gfx::VertexBuffer<Vertex> = (),
         color: gfx::Global<[f32; 4]> = "shape_color",
-        matrix: gfx::Global<[[f32; 2]; 2]> = "view_matrix",
+        trans: gfx::Global<[[f32; 2]; 2]> = "shape_trans",
+        targ_color: gfx::RenderTarget<gfx::format::Rgba8> = "targ_color",
     }
+}
+
+pub fn from_polar(p: &[f32; 2]) -> [f32; 2] {
+    use std::f32::consts::PI;
+    [
+        (PI * p[0]).cos() * p[1], 
+        (PI * p[0]).sin() * p[1],
+    ]
+}
+
+pub struct Shape {
+    data: Pipeline::Data<backend::Resources>,
+    slice: gfx::Slice<backend::Resources>,
 }
 
 pub struct Renderer {
     window: glutin::Window,
-    device: gfx_device_gl::Device,
-    factory: gfx_device_gl::Factory,
+    device: backend::Device,
+    factory: backend::Factory,
 
     targ_color: gfx::handle::RenderTargetView<
-        gfx_device_gl::Resources,
+        backend::Resources,
         gfx::format::Rgba8>,
 
     targ_depth: gfx::handle::DepthStencilView<
-        gfx_device_gl::Resources,
+        backend::Resources,
         gfx::format::DepthStencil>,
 
     encoder: gfx::Encoder<
-        gfx_device_gl::Resources,
-        gfx_device_gl::command::CommandBuffer>,
+        backend::Resources,
+        backend::CommandBuffer>,
 
     pipeline: gfx::PipelineState<
-        gfx_device_gl::Resources,
+        backend::Resources,
         Pipeline::Meta>,
 }
 
 impl Renderer {
     pub fn new() -> Self {
-        use gfx::traits::FactoryExt;
-
         let builder = glutin::WindowBuilder::new()
             .with_title("Roids".to_owned())
             .with_gl(glutin::GL_CORE)
@@ -51,14 +83,19 @@ impl Renderer {
         let (window, mut device, mut factory, targ_color, targ_depth) =
             gfx_window_glutin::init(builder);
 
-        let encoder = factory.create_encoder();
-
-        let pipeline = factory.create_pipeline_simple(
+        let shaderset = factory.create_shader_set(
             include_bytes!("main_vert.glsl"),
             include_bytes!("main_frag.glsl"),
-            gfx::state::CullFace::Nothing,
+        ).unwrap();
+
+        let pipeline = factory.create_pipeline_state(
+            &shaderset,
+            gfx::Primitive::LineStrip,
+            gfx::state::Rasterizer::new_fill(gfx::state::CullFace::Nothing),
             Pipeline::new(),
         ).unwrap();
+
+        let encoder = factory.create_encoder();
 
         Renderer {
             window: window,
@@ -74,4 +111,58 @@ impl Renderer {
     pub fn get_window(&mut self) -> &mut glutin::Window {
         &mut self.window
     }
+
+    pub fn create_shape(&mut self, vertices: &[Vertex]) -> Shape {
+        let (vbuf, slice) = self.factory.create_vertex_buffer(vertices);
+
+        let data = Pipeline::Data {
+            vbuf: vbuf,
+            color: [ 1.0; 4 ],
+            trans: [ [ 1.0e-2, 0.0 ], [ 0.0, 1.0e-2 ] ],
+            targ_color: self.targ_color.clone(),
+        }; 
+
+        Shape {
+            data: data,
+            slice: slice,
+        }
+    }
+
+    pub fn create_ship_shape(&mut self) -> Shape {
+        let vdata: Vec<_> = SHIP_SHAPE.iter()
+            .map(from_polar)
+            .map(Vertex::new)
+            .collect();
+        self.create_shape(&vdata)
+    }
+
+    pub fn draw_shape(&mut self, shape: &Shape) {
+        self.encoder.draw(&shape.slice, &self.pipeline, &shape.data);
+    }
+
+    pub fn clear(&mut self) {
+        self.encoder.reset();
+        self.encoder.clear(&self.targ_color, [ 0.01, 0.01, 0.02, 1.0 ]);
+        self.encoder.clear_depth(&self.targ_depth, 1.0);
+    }
+
+    pub fn finish(&mut self) {
+        self.device.submit(self.encoder.as_buffer());
+        self.window.swap_buffers().unwrap();
+        self.device.cleanup();
+    }
 }
+
+const SHIP_SHAPE: &'static [[f32; 2]] = &[
+    [0.05, 15.0],
+    [0.6, 5.0],
+    [0.7, 15.0],
+    [0.8, 20.0],
+    [0.85, 10.0],
+    [1.15, 10.0],
+    [1.2, 20.0],
+    [1.3, 15.0],
+    [1.4, 5.0],
+    [1.95, 15.0],
+    [0.05, 15.0],
+];
