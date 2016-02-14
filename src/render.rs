@@ -3,11 +3,6 @@ use gfx;
 use gfx_window_glutin;
 use gfx_device_gl;
 
-use gfx::{
-    format,
-    state,
-};
-
 gfx_vertex_struct! {
     Vertex {
         pos: [f32; 2] = "vertex_pos",
@@ -54,14 +49,14 @@ impl Renderer {
             .with_vsync();
 
         let (window, mut device, mut factory, targ_color, targ_depth) =
-            gfx_window_glutin::init::<format::Rgba8>(builder);
+            gfx_window_glutin::init(builder);
 
         let encoder = factory.create_encoder();
 
         let pipeline = factory.create_pipeline_simple(
             include_bytes!("main_vert.glsl"),
             include_bytes!("main_frag.glsl"),
-            state::CullFace::Nothing,
+            gfx::state::CullFace::Nothing,
             Pipeline::new(),
         ).unwrap();
 
