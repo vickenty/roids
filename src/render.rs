@@ -16,14 +16,14 @@ pub mod backend {
 
 gfx_vertex_struct! {
     Vertex {
-        pos: [f32; 2] = "vertex_pos",
+        pos: [f32; 3] = "vertex_pos",
     }
 }
 
 impl Vertex {
     pub fn new(p: [f32; 2]) -> Vertex {
         Vertex {
-            pos: p
+            pos: [ p[0], p[1], 1.0 ],
         }
     }
 }
@@ -32,7 +32,7 @@ gfx_pipeline!{
     Pipeline {
         vbuf: gfx::VertexBuffer<Vertex> = (),
         color: gfx::Global<[f32; 4]> = "shape_color",
-        trans: gfx::Global<[[f32; 2]; 2]> = "shape_trans",
+        trans: gfx::Global<[[f32; 3]; 3]> = "shape_trans",
         targ_color: gfx::RenderTarget<gfx::format::Rgba8> = "targ_color",
     }
 }
@@ -118,7 +118,7 @@ impl Renderer {
         let data = Pipeline::Data {
             vbuf: vbuf,
             color: [ 1.0; 4 ],
-            trans: [ [ 1.0e-2, 0.0 ], [ 0.0, 1.0e-2 ] ],
+            trans: [ [ 1.0e-2, 0.0, 0.0 ], [ 0.0, 1.0e-2, 0.0 ], [ 0.5, -0.5, 0.0 ] ],
             targ_color: self.targ_color.clone(),
         }; 
 

@@ -28,7 +28,7 @@ fn main() {
 
     let mut t0 = time::precise_time_s();
 
-    let shape = renderer.create_ship_shape();
+    let mut shape = renderer.create_ship_shape();
 
     'main: loop {
         let t1 = time::precise_time_s();
@@ -41,7 +41,6 @@ fn main() {
                 break 'main;
             }
             input.handle_event(&ev);
-
         }
 
         renderer.clear();
