@@ -43,7 +43,7 @@ gfx_pipeline!{
 
 pub fn from_polar(p: &[f32; 2]) -> [f32; 2] {
     [
-        (PI * p[0]).cos() * p[1], 
+        (PI * p[0]).cos() * p[1],
         (PI * p[0]).sin() * p[1],
     ]
 }
@@ -143,7 +143,7 @@ impl Renderer {
             color: [ 1.0; 4 ],
             trans: Matrix3::identity().into(),
             targ_color: self.targ_color.clone(),
-        }; 
+        };
 
         Shape {
             data: data,
