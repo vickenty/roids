@@ -5,11 +5,13 @@ extern crate glutin;
 extern crate gfx_window_glutin;
 extern crate gfx_device_gl;
 extern crate time;
+extern crate rand;
 
 mod input;
 mod physics;
 mod entity;
 mod ship;
+mod roid;
 mod render;
 
 use std::rc::Rc;
@@ -28,7 +30,13 @@ fn main() {
         ship_meta.clone(),
         renderer.create_ship_shape());
 
-    engine.add(Box::new(ship));
+    let roid = roid::Roid::new(
+        Default::default(),
+        50.0
+    );
+
+    //engine.add(Box::new(ship));
+    engine.add(Box::new(roid));
 
     let mut t0 = time::precise_time_s();
 

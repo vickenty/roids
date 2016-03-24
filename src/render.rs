@@ -152,12 +152,16 @@ impl Renderer {
         }
     }
 
-    pub fn create_ship_shape(&mut self) -> Shape {
-        let vdata: Vec<_> = SHIP_SHAPE.iter()
+    pub fn create_shape_simple(&mut self, shape: &[[f32; 2]]) -> Shape {
+        let vdata: Vec<_> = shape.iter()
             .map(from_polar)
             .map(Vertex::new)
             .collect();
         self.create_shape(&vdata)
+    }
+
+    pub fn create_ship_shape(&mut self) -> Shape {
+        self.create_shape_simple(SHIP_SHAPE)
     }
 
     pub fn draw_shape(&mut self, shape: &mut Shape) {
