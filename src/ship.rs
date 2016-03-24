@@ -32,10 +32,10 @@ impl Default for ShipMeta {
             max_health: 15.0,
             max_energy: 50.0,
 
-            linear_thrust: 6.0,
+            linear_thrust: 200.0,
             linear_power: 3.0,
 
-            angular_thrust: 0.06,
+            angular_thrust: 4.0,
             angular_power: 1.5,
             angular_limit: 0.04,
             angular_damage: 0.01,
