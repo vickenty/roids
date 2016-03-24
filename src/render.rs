@@ -111,7 +111,7 @@ impl Renderer {
         let encoder = factory.create_encoder();
 
         let transform = {
-            let scl = 1.0 / 600.0;
+            let scl = 1.0 / 300.0;
             [
                 [ scl, 0.0, 0.0 ],
                 [ 0.0, scl, 0.0 ],

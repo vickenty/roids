@@ -1,4 +1,5 @@
 use input::Input;
+use render;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum State {
@@ -7,6 +8,7 @@ pub enum State {
 }
 
 pub trait Entity {
+    fn draw(&mut self, renderer: &mut render::Renderer);
     fn think(&mut self, dt: f32, &Input, born: &mut Vec<Box<Entity>>) -> State;
     fn collide(&mut self, other: &mut Entity);
     fn take_damage(&mut self, f32);
@@ -31,6 +33,14 @@ impl Engine
 
     pub fn add(&mut self, entity: Box<Entity>) {
         self.entities.push(entity);
+    }
+
+    pub fn draw(&mut self, renderer: &mut render::Renderer) {
+        renderer.clear();
+        for e in self.entities.iter_mut() {
+            e.draw(renderer);
+        }
+        renderer.finish();
     }
 
     pub fn think(&mut self, dt: f32, input: &Input) {

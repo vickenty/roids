@@ -23,18 +23,19 @@ fn main() {
     let mut engine = entity::Engine::new();
 
     let ship_meta = Rc::new(ship::ShipMeta::default());
-    let ship = ship::Ship::new(Default::default(), ship_meta.clone());
+    let ship = ship::Ship::new(
+        Default::default(),
+        ship_meta.clone(),
+        renderer.create_ship_shape());
+
     engine.add(Box::new(ship));
 
     let mut t0 = time::precise_time_s();
 
-    let mut shape = renderer.create_ship_shape();
 
     'main: loop {
         let t1 = time::precise_time_s();
         let dt = t1 - t0;
-
-        engine.think(dt as f32, &input);
 
         for ev in renderer.get_window().poll_events() {
             if let Event::Closed = ev {
@@ -43,11 +44,9 @@ fn main() {
             input.handle_event(&ev);
         }
 
-        shape.set_transform(100.0, -100.0, 0.5);
+        engine.think(dt as f32, &input);
 
-        renderer.clear();
-        renderer.draw_shape(&mut shape);
-        renderer.finish();
+        engine.draw(&mut renderer);
 
         t0 = t1;
     }

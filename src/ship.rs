@@ -3,6 +3,7 @@ use std::rc::Rc;
 use input::{ Key, Input };
 use physics::Body;
 use entity::{ Entity, State };
+use render;
 
 pub struct ShipMeta {
     init_score: u32,
@@ -55,11 +56,12 @@ pub struct Ship
     pub energy: f32,
 
     meta: Rc<ShipMeta>,
+    shape: render::Shape,
 }
 
 impl Ship
 {
-    pub fn new(body: Body, meta: Rc<ShipMeta>) -> Ship
+    pub fn new(body: Body, meta: Rc<ShipMeta>, shape: render::Shape) -> Ship
     {
         Ship {
             body: body,
@@ -71,6 +73,7 @@ impl Ship
             energy: meta.max_energy,
 
             meta: meta,
+            shape: shape,
         }
     }
 
@@ -105,6 +108,11 @@ impl Ship
 
 impl Entity for Ship
 {
+    fn draw(&mut self, renderer: &mut render::Renderer) {
+        self.shape.set_transform(self.body.p.x, self.body.p.y, self.body.a);
+        renderer.draw_shape(&mut self.shape);
+    }
+
     fn think(&mut self, dt: f32, input: &Input, spawn: &mut Vec<Box<Entity>>) -> State {
         if input.pressed(Key::Forward) {
             self.accel(dt, 0.0);
