@@ -33,7 +33,7 @@ impl Vertex {
 }
 
 gfx_pipeline!{
-    Pipeline {
+    main_pline {
         vbuf: gfx::VertexBuffer<Vertex> = (),
         color: gfx::Global<[f32; 4]> = "shape_color",
         trans: gfx::Global<[[f32; 3]; 3]> = "shape_trans",
@@ -49,7 +49,7 @@ pub fn from_polar(p: &[f32; 2]) -> [f32; 2] {
 }
 
 pub struct Shape {
-    data: Pipeline::Data<backend::Resources>,
+    data: main_pline::Data<backend::Resources>,
     slice: gfx::Slice<backend::Resources>,
     transform: Matrix3<f32>,
 }
@@ -82,7 +82,7 @@ pub struct Renderer {
 
     pipeline: gfx::PipelineState<
         backend::Resources,
-        Pipeline::Meta>,
+        main_pline::Meta>,
 }
 
 impl Renderer {
@@ -93,7 +93,7 @@ impl Renderer {
             .with_dimensions(600, 600)
             .with_vsync();
 
-        let (window, mut device, mut factory, targ_color, targ_depth) =
+        let (window, device, mut factory, targ_color, targ_depth) =
             gfx_window_glutin::init(builder);
 
         let shaderset = factory.create_shader_set(
@@ -105,7 +105,7 @@ impl Renderer {
             &shaderset,
             gfx::Primitive::LineStrip,
             gfx::state::Rasterizer::new_fill(gfx::state::CullFace::Nothing),
-            Pipeline::new(),
+            main_pline::new(),
         ).unwrap();
 
         let encoder = factory.create_encoder();
@@ -138,7 +138,7 @@ impl Renderer {
     pub fn create_shape(&mut self, vertices: &[Vertex]) -> Shape {
         let (vbuf, slice) = self.factory.create_vertex_buffer(vertices);
 
-        let data = Pipeline::Data {
+        let data = main_pline::Data {
             vbuf: vbuf,
             color: [ 1.0; 4 ],
             trans: Matrix3::identity().into(),
