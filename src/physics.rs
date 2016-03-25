@@ -20,6 +20,12 @@ impl Body {
     pub fn think(&mut self, dt: f32) {
         self.p = self.p + self.dp * dt;
         self.a = self.a + self.da * dt;
+        if self.a > 2.0 {
+            self.a -= 2.0;
+        }
+        if self.a < 0.0 {
+            self.a += 2.0;
+        }
     }
 
     pub fn apply_force_abs(&mut self, f: v32) {
