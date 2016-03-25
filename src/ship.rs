@@ -141,7 +141,7 @@ impl Entity for Ship
         self.state
     }
 
-    fn collide(&mut self, other: &mut Entity) {
+    fn collide(&mut self, other: &mut Entity, energy: f32) {
     }
 
     fn take_damage(&mut self, damage: f32) {
@@ -151,5 +151,9 @@ impl Entity for Ship
         } else {
             self.health -= damage;
         }
+    }
+
+    fn body(&mut self) -> Option<&mut Body> {
+        Some(&mut self.body)
     }
 }

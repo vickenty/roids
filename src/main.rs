@@ -26,16 +26,16 @@ fn main() {
 
     let ship_meta = Rc::new(ship::ShipMeta::default());
     let ship = ship::Ship::new(
-        Default::default(),
+        physics::Body { p: physics::v32::new(-100.0, 0.0), r: 20.0, ..Default::default() },
         ship_meta.clone(),
         renderer.create_ship_shape());
 
     let roid = roid::Roid::new(
-        Default::default(),
-        50.0
+        physics::Body { p: physics::v32::new(100.0, 0.0), r: 150.0, ..Default::default() },
+        180.0
     );
 
-    //engine.add(Box::new(ship));
+    engine.add(Box::new(ship));
     engine.add(Box::new(roid));
 
     let mut t0 = time::precise_time_s();

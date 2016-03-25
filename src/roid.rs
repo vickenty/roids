@@ -64,9 +64,13 @@ impl Entity for Roid {
         self.state
     }
 
-    fn collide(&mut self, other: &mut Entity) {
+    fn collide(&mut self, other: &mut Entity, energy: f32) {
     }
 
     fn take_damage(&mut self, damage: f32) {
+    }
+
+    fn body(&mut self) -> Option<&mut Body> {
+        Some(&mut self.body)
     }
 }
