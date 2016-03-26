@@ -42,3 +42,26 @@ impl Bar {
         renderer.draw_shape(&mut shape);
     }
 }
+
+pub struct Hud {
+    energy: Bar,
+}
+
+impl Hud {
+    pub fn new() -> Hud {
+        Hud {
+            energy: Bar::new(
+               V32::new(-280.0, 240.0),
+               V32::new(560.0, 10.0),
+               V32::new(1.0, 0.0)),
+        }
+    }
+
+    pub fn update(&mut self, energy: f32) {
+        self.energy.set(energy);
+    }
+
+    pub fn draw(&mut self, renderer: &mut render::Renderer) {
+        self.energy.draw(renderer);
+    }
+}

@@ -1,6 +1,7 @@
 use input::Input;
 use render;
 use physics;
+use hud::Hud;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum State {
@@ -10,7 +11,7 @@ pub enum State {
 
 pub trait Entity {
     fn draw(&mut self, renderer: &mut render::Renderer);
-    fn think(&mut self, dt: f32, &Input, born: &mut Vec<Box<Entity>>) -> State;
+    fn think(&mut self, dt: f32, &Input, hud: &mut Hud, born: &mut Vec<Box<Entity>>) -> State;
     fn collide(&mut self, other: &mut Entity, energy: f32);
     fn take_damage(&mut self, f32);
     fn body(&mut self) -> Option<&mut physics::Body>;
@@ -71,9 +72,9 @@ impl Engine
         }
     }
 
-    pub fn think(&mut self, dt: f32, input: &Input) {
+    pub fn think(&mut self, dt: f32, input: &Input, hud: &mut Hud) {
         for (i, e) in self.entities.iter_mut().enumerate() {
-            let state = e.think(dt, input, &mut self.born);
+            let state = e.think(dt, input, hud, &mut self.born);
             if state == State::Dead {
                 self.dead.push(i);
             }

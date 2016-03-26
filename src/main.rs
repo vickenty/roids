@@ -39,12 +39,7 @@ fn main() {
     engine.add(Box::new(ship));
     engine.add(Box::new(roid));
 
-    let mut bar = hud::Bar::new(
-        hud::V32::new(-280.0, 260.0),
-        hud::V32::new( 560.0,  20.0),
-        hud::V32::new(   1.0,   0.0),
-    );
-    bar.set(1.0);
+    let mut hud = hud::Hud::new();
 
     let mut t0 = time::precise_time_s();
 
@@ -59,13 +54,13 @@ fn main() {
             input.handle_event(&ev);
         }
 
-        engine.think(dt as f32, &input);
+        engine.think(dt as f32, &input, &mut hud);
 
         renderer.clear();
 
         engine.draw(&mut renderer);
 
-        bar.draw(&mut renderer);
+        hud.draw(&mut renderer);
 
         renderer.finish();
 

@@ -4,6 +4,7 @@ use input::{ Key, Input };
 use physics::Body;
 use entity::{ Entity, State };
 use render;
+use hud::Hud;
 
 pub struct ShipMeta {
     init_score: u32,
@@ -113,7 +114,7 @@ impl Entity for Ship
         renderer.draw_shape(&mut self.shape);
     }
 
-    fn think(&mut self, dt: f32, input: &Input, spawn: &mut Vec<Box<Entity>>) -> State {
+    fn think(&mut self, dt: f32, input: &Input, hud: &mut Hud, spawn: &mut Vec<Box<Entity>>) -> State {
         if input.pressed(Key::Forward) {
             self.accel(dt, 0.0);
         }
@@ -137,6 +138,8 @@ impl Entity for Ship
             let damage = over * self.meta.angular_damage;
             self.take_damage(damage);
         }
+
+        hud.update(self.energy / self.meta.max_energy);
 
         self.state
     }

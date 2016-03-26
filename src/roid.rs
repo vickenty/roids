@@ -4,6 +4,7 @@ use rand::Rng;
 use input::Input;
 use entity::{ Entity, State };
 use physics::{ Body };
+use hud::Hud;
 use render;
 
 pub struct Roid
@@ -58,7 +59,7 @@ impl Entity for Roid {
         }
     }
 
-    fn think(&mut self, dt: f32, input: &Input, spawn: &mut Vec<Box<Entity>>) -> State {
+    fn think(&mut self, dt: f32, input: &Input, hud: &mut Hud, spawn: &mut Vec<Box<Entity>>) -> State {
         self.body.think(dt);
 
         self.state
