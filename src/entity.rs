@@ -46,11 +46,9 @@ impl Engine
     }
 
     pub fn draw(&mut self, renderer: &mut render::Renderer) {
-        renderer.clear();
         for e in self.entities.iter_mut() {
             e.draw(renderer);
         }
-        renderer.finish();
     }
 
     fn collide_one(&mut self, i: usize) {

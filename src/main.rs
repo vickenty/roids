@@ -13,6 +13,7 @@ mod entity;
 mod ship;
 mod roid;
 mod render;
+mod hud;
 
 use std::rc::Rc;
 use render::Renderer;
@@ -38,8 +39,14 @@ fn main() {
     engine.add(Box::new(ship));
     engine.add(Box::new(roid));
 
-    let mut t0 = time::precise_time_s();
+    let mut bar = hud::Bar::new(
+        hud::V32::new(-280.0, 260.0),
+        hud::V32::new( 560.0,  20.0),
+        hud::V32::new(   1.0,   0.0),
+    );
+    bar.set(1.0);
 
+    let mut t0 = time::precise_time_s();
 
     'main: loop {
         let t1 = time::precise_time_s();
@@ -54,7 +61,13 @@ fn main() {
 
         engine.think(dt as f32, &input);
 
+        renderer.clear();
+
         engine.draw(&mut renderer);
+
+        bar.draw(&mut renderer);
+
+        renderer.finish();
 
         t0 = t1;
     }

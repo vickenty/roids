@@ -48,7 +48,13 @@ pub fn from_polar(p: &[f32; 2]) -> [f32; 2] {
     ]
 }
 
+pub enum ShapeType {
+    Game,
+    UI
+}
+
 pub struct Shape {
+    ty: ShapeType,
     data: main_pline::Data<backend::Resources>,
     slice: gfx::Slice<backend::Resources>,
     transform: Matrix3<f32>,
@@ -80,7 +86,11 @@ pub struct Renderer {
         backend::Resources,
         backend::CommandBuffer>,
 
-    pipeline: gfx::PipelineState<
+    main_state: gfx::PipelineState<
+        backend::Resources,
+        main_pline::Meta>,
+
+    ui_state: gfx::PipelineState<
         backend::Resources,
         main_pline::Meta>,
 }
@@ -101,9 +111,16 @@ impl Renderer {
             include_bytes!("main_frag.glsl"),
         ).unwrap();
 
-        let pipeline = factory.create_pipeline_state(
+        let main_state = factory.create_pipeline_state(
             &shaderset,
             gfx::Primitive::LineStrip,
+            gfx::state::Rasterizer::new_fill(gfx::state::CullFace::Nothing),
+            main_pline::new(),
+        ).unwrap();
+
+        let ui_state = factory.create_pipeline_state(
+            &shaderset,
+            gfx::Primitive::TriangleStrip,
             gfx::state::Rasterizer::new_fill(gfx::state::CullFace::Nothing),
             main_pline::new(),
         ).unwrap();
@@ -127,7 +144,8 @@ impl Renderer {
             targ_color: targ_color,
             targ_depth: targ_depth,
             encoder: encoder,
-            pipeline: pipeline,
+            main_state: main_state,
+            ui_state: ui_state,
         }
     }
 
@@ -135,7 +153,7 @@ impl Renderer {
         &mut self.window
     }
 
-    pub fn create_shape(&mut self, vertices: &[Vertex]) -> Shape {
+    pub fn create_shape(&mut self, ty: ShapeType, vertices: &[Vertex]) -> Shape {
         let (vbuf, slice) = self.factory.create_vertex_buffer(vertices);
 
         let data = main_pline::Data {
@@ -146,6 +164,7 @@ impl Renderer {
         };
 
         Shape {
+            ty: ty,
             data: data,
             slice: slice,
             transform: Matrix3::identity(),
@@ -157,7 +176,7 @@ impl Renderer {
             .map(from_polar)
             .map(Vertex::new)
             .collect();
-        self.create_shape(&vdata)
+        self.create_shape(ShapeType::Game, &vdata)
     }
 
     pub fn create_ship_shape(&mut self) -> Shape {
@@ -166,7 +185,13 @@ impl Renderer {
 
     pub fn draw_shape(&mut self, shape: &mut Shape) {
         shape.data.trans = (self.transform * shape.transform).into();
-        self.encoder.draw(&shape.slice, &self.pipeline, &shape.data);
+
+        let pline_state = match shape.ty {
+            ShapeType::Game => &self.main_state,
+            ShapeType::UI => &self.ui_state,
+        };
+
+        self.encoder.draw(&shape.slice, pline_state, &shape.data);
     }
 
     pub fn clear(&mut self) {
