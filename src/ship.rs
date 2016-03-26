@@ -139,7 +139,8 @@ impl Entity for Ship
             self.take_damage(damage);
         }
 
-        hud.update(self.energy / self.meta.max_energy);
+        hud.update(self.energy / self.meta.max_energy,
+                   self.health / self.meta.max_health);
 
         self.state
     }
