@@ -38,7 +38,7 @@ impl Default for ShipMeta {
 
             angular_thrust: 4.0,
             angular_power: 1.5,
-            angular_limit: 0.04,
+            angular_limit: 4.0,
             angular_damage: 0.01,
 
             beam_spread: 0.2,
