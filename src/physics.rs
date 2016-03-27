@@ -67,6 +67,11 @@ impl Default for Body {
 
 const REST_FACTOR: f32 = 0.8;
 
+fn energy(a_dp: &v32, am: f32, b_dp: &v32, bm: f32) -> f32 {
+    let c_dp = (a_dp * am + b_dp * bm) / (am + bm);
+    (a_dp - c_dp).length2() * am + (b_dp - c_dp).length2() * bm
+}
+
 pub fn collide(a: &mut Body, b: &mut Body) -> Option<f32> {
     let dp = a.p - b.p;
     let dist = dp.length() - a.r - b.r;
@@ -75,7 +80,7 @@ pub fn collide(a: &mut Body, b: &mut Body) -> Option<f32> {
         let am = a.r.powi(3);
         let bm = b.r.powi(3);
 
-        let energy_before = a.dp.length2() * am + b.dp.length2() * bm;
+        let energy_before = energy(&a.dp, am, &b.dp, bm);
 
         let dv = a.dp - b.dp;
         let change = dp * dv.dot(dp) / dp.length2() * 2.0 / (am + bm) * REST_FACTOR;
@@ -83,7 +88,7 @@ pub fn collide(a: &mut Body, b: &mut Body) -> Option<f32> {
         a.dp = a.dp - change * bm;
         b.dp = b.dp + change * am;
 
-        let energy_after = a.dp.length2() * am + b.dp.length2() * bm;
+        let energy_after = energy(&a.dp, am, &b.dp, bm);
 
         let correction = dp.normalize() * dist / (am + bm);
         a.p = a.p - correction * bm;
