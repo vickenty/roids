@@ -179,10 +179,6 @@ impl Renderer {
         self.create_shape(ShapeType::Game, &vdata)
     }
 
-    pub fn create_ship_shape(&mut self) -> Shape {
-        self.create_shape_simple(SHIP_SHAPE)
-    }
-
     pub fn draw_shape(&mut self, shape: &mut Shape) {
         shape.data.trans = (self.transform * shape.transform).into();
 
@@ -207,16 +203,3 @@ impl Renderer {
     }
 }
 
-const SHIP_SHAPE: &'static [[f32; 2]] = &[
-    [0.05, 15.0],
-    [0.6, 5.0],
-    [0.7, 15.0],
-    [0.8, 20.0],
-    [0.85, 10.0],
-    [1.15, 10.0],
-    [1.2, 20.0],
-    [1.3, 15.0],
-    [1.4, 5.0],
-    [1.95, 15.0],
-    [0.05, 15.0],
-];

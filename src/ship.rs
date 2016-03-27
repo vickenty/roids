@@ -57,12 +57,12 @@ pub struct Ship
     pub energy: f32,
 
     meta: Rc<ShipMeta>,
-    shape: render::Shape,
+    shape: Option<render::Shape>,
 }
 
 impl Ship
 {
-    pub fn new(body: Body, meta: Rc<ShipMeta>, shape: render::Shape) -> Ship
+    pub fn new(body: Body, meta: Rc<ShipMeta>) -> Ship
     {
         Ship {
             body: body,
@@ -74,7 +74,7 @@ impl Ship
             energy: meta.max_energy,
 
             meta: meta,
-            shape: shape,
+            shape: None,
         }
     }
 
@@ -110,8 +110,14 @@ impl Ship
 impl Entity for Ship
 {
     fn draw(&mut self, renderer: &mut render::Renderer) {
-        self.shape.set_transform(self.body.p.x, self.body.p.y, self.body.a);
-        renderer.draw_shape(&mut self.shape);
+        if self.shape.is_none() {
+            self.shape = Some(renderer.create_shape_simple(SHIP_SHAPE));
+        }
+
+        if let Some(shape) = self.shape.as_mut() {
+            shape.set_transform(self.body.p.x, self.body.p.y, self.body.a);
+            renderer.draw_shape(shape);
+        }
     }
 
     fn think(&mut self, dt: f32, input: &Input, hud: &mut Hud, spawn: &mut Vec<Box<Entity>>) -> State {
@@ -162,3 +168,17 @@ impl Entity for Ship
         Some(&mut self.body)
     }
 }
+
+const SHIP_SHAPE: &'static [[f32; 2]] = &[
+    [0.05, 15.0],
+    [0.6, 5.0],
+    [0.7, 15.0],
+    [0.8, 20.0],
+    [0.85, 10.0],
+    [1.15, 10.0],
+    [1.2, 20.0],
+    [1.3, 15.0],
+    [1.4, 5.0],
+    [1.95, 15.0],
+    [0.05, 15.0],
+];

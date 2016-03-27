@@ -28,8 +28,7 @@ fn main() {
     let ship_meta = Rc::new(ship::ShipMeta::default());
     let ship = ship::Ship::new(
         physics::Body { p: physics::v32::new(-100.0, 0.0), r: 20.0, ..Default::default() },
-        ship_meta.clone(),
-        renderer.create_ship_shape());
+        ship_meta.clone());
 
     let roid = roid::Roid::new(
         physics::Body { p: physics::v32::new(100.0, 0.0), r: 150.0, ..Default::default() },
