@@ -1,5 +1,6 @@
 use rand;
 use rand::Rng;
+use cgmath::{ Vector2 };
 
 use input::Input;
 use entity::{ Entity, State };
@@ -46,6 +47,28 @@ impl Roid {
 
         renderer.create_shape_simple(&p[..])
     }
+
+    fn explode(&mut self, spawn: &mut Vec<Box<Entity>>) {
+        use std::f32::consts::PI;
+
+        if self.size <= 20.0 {
+            return;
+        }
+
+        let mut rng = rand::thread_rng();
+        let pieces = rng.gen_range(3, 6);
+        let angle = PI / pieces as f32;
+        for p in 0..pieces {
+            let a = (p as f32) * 2.0 * angle + rng.gen_range(-angle/2.0, angle/2.0);
+            let dp = Vector2::new(a.cos(), a.sin());
+            let p = self.body.p + dp * self.size;
+            let r = self.size / 2.0;
+            let da = rng.gen_range(-0.1, 0.1);
+            let body = Body { p: p, dp: dp, da: da, r: r, ..Default::default() };
+            let roid = Roid::new(body, r);
+            spawn.push(Box::new(roid));
+        }
+    }
 }
 
 impl Entity for Roid {
@@ -62,13 +85,20 @@ impl Entity for Roid {
     fn think(&mut self, dt: f32, input: &Input, hud: &mut Hud, spawn: &mut Vec<Box<Entity>>) -> State {
         self.body.think(dt);
 
+        if self.health <= 0.0 {
+            self.state = State::Dead;
+            self.explode(spawn);
+        }
+
         self.state
     }
 
     fn collide(&mut self, other: &mut Entity, energy: f32) {
+        self.take_damage(energy / 1e7);
     }
 
     fn take_damage(&mut self, damage: f32) {
+        self.health -= damage;
     }
 
     fn body(&mut self) -> Option<&mut Body> {
