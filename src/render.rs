@@ -14,7 +14,7 @@ pub mod backend {
     pub type Device = gfx_device_gl::Device;
     pub type Resources = gfx_device_gl::Resources;
     pub type Factory = gfx_device_gl::Factory;
-    pub type CommandBuffer = gfx_device_gl::command::CommandBuffer;
+    pub type CommandBuffer = gfx_device_gl::CommandBuffer;
 }
 
 gfx_vertex_struct! {
@@ -124,7 +124,7 @@ impl Renderer {
             main_pline::new(),
         ).unwrap();
 
-        let encoder = factory.create_encoder();
+        let command_buffer = factory.create_command_buffer();
 
         let transform = {
             let scl = 1.0 / 300.0;
@@ -142,7 +142,7 @@ impl Renderer {
             factory: factory,
             targ_color: targ_color,
             targ_depth: targ_depth,
-            encoder: encoder,
+            encoder: command_buffer.into(),
             main_state: main_state,
             ui_state: ui_state,
         }
@@ -190,13 +190,12 @@ impl Renderer {
     }
 
     pub fn clear(&mut self) {
-        self.encoder.reset();
         self.encoder.clear(&self.targ_color, [ 0.01, 0.01, 0.02, 1.0 ]);
         self.encoder.clear_depth(&self.targ_depth, 1.0);
     }
 
     pub fn finish(&mut self) {
-        self.device.submit(self.encoder.as_buffer());
+        self.encoder.flush(&mut self.device);
         self.window.swap_buffers().unwrap();
         self.device.cleanup();
     }
