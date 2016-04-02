@@ -14,6 +14,7 @@ mod ship;
 mod roid;
 mod render;
 mod hud;
+mod beam;
 
 use std::rc::Rc;
 use render::Renderer;

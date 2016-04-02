@@ -1,10 +1,12 @@
 use std::rc::Rc;
 
+use cgmath::vec2;
 use input::{ Key, Input };
 use physics::Body;
 use entity::{ Entity, State };
 use render;
 use hud::Hud;
+use beam::Beam;
 
 pub struct ShipMeta {
     init_score: u32,
@@ -21,7 +23,11 @@ pub struct ShipMeta {
     angular_limit: f32,
     angular_damage: f32,
 
+    fire_delay: f32,
+
     beam_spread: f32,
+    beam_speed: f32,
+    beam_radius: f32,
 }
 
 impl Default for ShipMeta {
@@ -41,7 +47,11 @@ impl Default for ShipMeta {
             angular_limit: 4.0,
             angular_damage: 0.01,
 
+            fire_delay: 0.1,
+
             beam_spread: 0.2,
+            beam_speed: 360.0,
+            beam_radius: 5.0,
         }
     }
 }
@@ -55,6 +65,8 @@ pub struct Ship
     pub power: u32,
     pub health: f32,
     pub energy: f32,
+
+    fire_delay: f32,
 
     meta: Rc<ShipMeta>,
     shape: Option<render::Shape>,
@@ -72,6 +84,8 @@ impl Ship
             power: meta.init_power,
             health: meta.max_health,
             energy: meta.max_energy,
+
+            fire_delay: 0.0,
 
             meta: meta,
             shape: None,
@@ -104,6 +118,26 @@ impl Ship
     }
 
     fn fire(&mut self, dt: f32, spawn: &mut Vec<Box<Entity>>) {
+        let meta = &self.meta;
+
+        if self.fire_delay >= 0.0 {
+            self.fire_delay -= dt;
+            return;
+        }
+
+        self.fire_delay = meta.fire_delay;
+
+        let fwd = self.body.to_world(vec2(1.0, 0.0));
+        let ofs = self.body.r + meta.beam_radius + 2.5;
+        let body = Body {
+            p: self.body.p + fwd * ofs,
+            dp: self.body.dp + fwd * meta.beam_speed,
+            a: self.body.a,
+            r: meta.beam_radius,
+            ..Default::default()
+        };
+        let beam = Beam::new(body);
+        spawn.push(Box::new(beam));
     }
 }
 
