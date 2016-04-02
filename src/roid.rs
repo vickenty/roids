@@ -45,7 +45,7 @@ impl Roid {
         let p0 = p[0].clone();
         p.push(p0);
 
-        renderer.create_shape_simple(&p[..])
+        renderer.create_shape_simple([1.0; 4], &p[..])
     }
 
     fn explode(&mut self, spawn: &mut Vec<Box<Entity>>) {

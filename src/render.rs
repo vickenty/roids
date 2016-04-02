@@ -153,12 +153,12 @@ impl Renderer {
         &mut self.window
     }
 
-    pub fn create_shape(&mut self, ty: ShapeType, vertices: &[Vertex]) -> Shape {
+    pub fn create_shape(&mut self, ty: ShapeType, color: [f32; 4], vertices: &[Vertex]) -> Shape {
         let (vbuf, slice) = self.factory.create_vertex_buffer(vertices);
 
         let data = main_pline::Data {
             vbuf: vbuf,
-            color: [ 1.0; 4 ],
+            color: color,
             trans: Matrix3::identity().into(),
             targ_color: self.targ_color.clone(),
         };
@@ -171,12 +171,12 @@ impl Renderer {
         }
     }
 
-    pub fn create_shape_simple(&mut self, shape: &[[f32; 2]]) -> Shape {
+    pub fn create_shape_simple(&mut self, color: [f32; 4], shape: &[[f32; 2]]) -> Shape {
         let vdata: Vec<_> = shape.iter()
             .map(from_polar)
             .map(Vertex::new)
             .collect();
-        self.create_shape(ShapeType::Game, &vdata)
+        self.create_shape(ShapeType::Game, color, &vdata)
     }
 
     pub fn draw_shape(&mut self, shape: &mut Shape) {

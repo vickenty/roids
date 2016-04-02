@@ -21,10 +21,9 @@ impl Beam {
 impl Entity for Beam {
     fn draw(&mut self, renderer: &mut render::Renderer) {
         let r = self.body.r;
-        let mut shape = renderer.create_shape_simple(&[
-            [0.0, r],
-            [1.0, r],
-        ]);
+        let mut shape = renderer.create_shape_simple(
+            [ 0.3, 0.9, 0.6, 1.0 ],
+            &[ [0.0, r], [1.0, r] ]);
         shape.set_transform(self.body.p.x, self.body.p.y, self.body.a);
         renderer.draw_shape(&mut shape);
     }

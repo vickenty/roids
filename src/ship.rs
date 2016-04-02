@@ -145,7 +145,7 @@ impl Entity for Ship
 {
     fn draw(&mut self, renderer: &mut render::Renderer) {
         if self.shape.is_none() {
-            self.shape = Some(renderer.create_shape_simple(SHIP_SHAPE));
+            self.shape = Some(renderer.create_shape_simple([1.0; 4], SHIP_SHAPE));
         }
 
         if let Some(shape) = self.shape.as_mut() {
