@@ -26,7 +26,7 @@ impl Roid {
             shape: None,
 
             size: size,
-            health: size,
+            health: size / 20.0,
         }
     }
 

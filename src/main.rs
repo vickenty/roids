@@ -32,8 +32,8 @@ fn main() {
         ship_meta.clone());
 
     let roid = roid::Roid::new(
-        physics::Body { p: physics::v32::new(100.0, 0.0), r: 150.0, ..Default::default() },
-        180.0
+        physics::Body { p: physics::v32::new(100.0, 0.0), r: 50.0, ..Default::default() },
+        50.0
     );
 
     engine.add(Box::new(ship));
