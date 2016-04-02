@@ -20,6 +20,7 @@ use std::rc::Rc;
 use render::Renderer;
 use glutin::Event;
 use entity::Entity;
+use cgmath::vec2;
 
 fn main() {
     let mut renderer = Renderer::new();
@@ -28,11 +29,11 @@ fn main() {
 
     let ship_meta = Rc::new(ship::ShipMeta::default());
     let ship = ship::Ship::new(
-        physics::Body { p: physics::v32::new(-100.0, 0.0), r: 20.0, ..Default::default() },
+        physics::Body { p: vec2(-100.0, 0.0), r: 20.0, ..Default::default() },
         ship_meta.clone());
 
     let roid = roid::Roid::new(
-        physics::Body { p: physics::v32::new(100.0, 0.0), r: 50.0, ..Default::default() },
+        physics::Body { p: vec2(100.0, 0.0), r: 50.0, ..Default::default() },
         50.0
     );
 

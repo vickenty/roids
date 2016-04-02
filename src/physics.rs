@@ -1,18 +1,16 @@
 use std::f32::consts::PI;
 
-use cgmath::{ rad, Vector, Matrix, EuclideanVector };
+use cgmath::{ vec2, rad, Vector, EuclideanVector };
 
-#[allow(non_camel_case_types)]
-pub type v32 = ::cgmath::Vector2<f32>;
-#[allow(non_camel_case_types)]
-pub type m32 = ::cgmath::Matrix2<f32>;
+pub type V32 = ::cgmath::Vector2<f32>;
+pub type M32 = ::cgmath::Matrix2<f32>;
 
 pub struct Body {
-    pub p: v32,
+    pub p: V32,
     pub a: f32,
     pub r: f32,
     pub m: f32,
-    pub dp: v32,
+    pub dp: V32,
     pub da: f32,
 }
 
@@ -28,13 +26,13 @@ impl Body {
         }
     }
 
-    pub fn apply_force_abs(&mut self, f: v32) {
+    pub fn apply_force_abs(&mut self, f: V32) {
         self.dp = self.dp + f / self.m;
     }
 
     pub fn apply_force_world(&mut self, f: f32, a: f32) {
         let t = a * PI;
-        self.apply_force_abs(v32::new(t.cos() * f, t.sin() * f));
+        self.apply_force_abs(vec2(t.cos() * f, t.sin() * f));
     }
 
     pub fn apply_force_local(&mut self, f: f32, a: f32) {
@@ -46,8 +44,8 @@ impl Body {
         self.da += t / self.m;
     }
 
-    pub fn to_world(&mut self, p: v32) -> v32 {
-        let m = m32::from_angle(rad(self.a * PI));
+    pub fn to_world(&mut self, p: V32) -> V32 {
+        let m = M32::from_angle(rad(self.a * PI));
         m * p
     }
 }
@@ -55,11 +53,11 @@ impl Body {
 impl Default for Body {
     fn default() -> Body {
         Body {
-            p: v32::new(0.0, 0.0),
+            p: vec2(0.0, 0.0),
             a: 0.0,
             r: 0.0,
             m: 1.0,
-            dp: v32::new(0.0, 0.0),
+            dp: vec2(0.0, 0.0),
             da: 0.0,
         }
     }
@@ -68,7 +66,7 @@ impl Default for Body {
 const REST_FACTOR: f32 = 0.8;
 const UNIT_OF_ENERGY: f32 = 1e8;
 
-fn energy(a_dp: &v32, am: f32, b_dp: &v32, bm: f32) -> f32 {
+fn energy(a_dp: &V32, am: f32, b_dp: &V32, bm: f32) -> f32 {
     let c_dp = (a_dp * am + b_dp * bm) / (am + bm);
     (a_dp - c_dp).length2() * am + (b_dp - c_dp).length2() * bm
 }
@@ -107,13 +105,13 @@ fn test_body() {
 
     b.apply_force_local(1.0, 0.0);
     b.apply_torque(1.0);
-    assert_eq!(b.dp, v32::new(0.5, 0.0));
+    assert_eq!(b.dp, vec2(0.5, 0.0));
     assert_eq!(b.da, 0.5);
 
     b.think(2.0);
 
-    assert_eq!(b.dp, v32::new(0.5, 0.0));
+    assert_eq!(b.dp, vec2(0.5, 0.0));
     assert_eq!(b.da, 0.5);
-    assert_eq!(b.p, v32::new(1.0, 0.0));
+    assert_eq!(b.p, vec2(1.0, 0.0));
     assert_eq!(b.a, 1.0);
 }
