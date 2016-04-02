@@ -1,7 +1,6 @@
 use glutin;
 use gfx;
 use gfx_window_glutin;
-use cgmath;
 
 use gfx::traits::Device;
 use gfx::traits::FactoryExt;

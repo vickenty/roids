@@ -53,7 +53,7 @@ impl Engine
     }
 
     fn collide_one(&mut self, i: usize) {
-        let (mut todo, mut rest) = self.entities.split_at_mut(i);
+        let (todo, mut rest) = self.entities.split_at_mut(i);
         let mut this = rest[0].as_mut();
 
         for other in todo {

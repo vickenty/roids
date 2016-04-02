@@ -82,7 +82,7 @@ impl Entity for Roid {
         }
     }
 
-    fn think(&mut self, dt: f32, input: &Input, hud: &mut Hud, spawn: &mut Vec<Box<Entity>>) -> State {
+    fn think(&mut self, dt: f32, _input: &Input, _hud: &mut Hud, spawn: &mut Vec<Box<Entity>>) -> State {
         self.body.think(dt);
 
         if self.health <= 0.0 {
@@ -93,7 +93,7 @@ impl Entity for Roid {
         self.state
     }
 
-    fn collide(&mut self, other: &mut Entity, energy: f32) {
+    fn collide(&mut self, _other: &mut Entity, energy: f32) {
         self.take_damage(energy);
     }
 

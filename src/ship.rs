@@ -185,7 +185,7 @@ impl Entity for Ship
         self.state
     }
 
-    fn collide(&mut self, other: &mut Entity, energy: f32) {
+    fn collide(&mut self, _other: &mut Entity, energy: f32) {
         self.take_damage(energy);
     }
 
