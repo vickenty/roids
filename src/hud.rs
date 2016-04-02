@@ -1,5 +1,5 @@
 use cgmath;
-use cgmath::{ Vector };
+use cgmath::vec2;
 
 use render;
 
@@ -58,14 +58,14 @@ impl Hud {
     pub fn new() -> Hud {
         Hud {
             energy: Bar::new(
-               V32::new(-280.0, 240.0),
-               V32::new(560.0, 10.0),
-               V32::new(1.0, 0.0),
+               vec2(-280.0, 240.0),
+               vec2(560.0, 10.0),
+               vec2(1.0, 0.0),
                [ 0.9, 0.6, 0.3, 1.0 ]),
             health: Bar::new(
-               V32::new(-280.0, 260.0),
-               V32::new(560.0, 20.0),
-               V32::new(1.0, 0.0),
+               vec2(-280.0, 260.0),
+               vec2(560.0, 20.0),
+               vec2(1.0, 0.0),
                [ 0.3, 0.6, 0.9, 1.0 ]),
         }
     }
