@@ -94,7 +94,7 @@ impl Entity for Roid {
     }
 
     fn collide(&mut self, other: &mut Entity, energy: f32) {
-        self.take_damage(energy / 1e7);
+        self.take_damage(energy);
     }
 
     fn take_damage(&mut self, damage: f32) {

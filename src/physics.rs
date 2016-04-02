@@ -66,6 +66,7 @@ impl Default for Body {
 }
 
 const REST_FACTOR: f32 = 0.8;
+const UNIT_OF_ENERGY: f32 = 1e8;
 
 fn energy(a_dp: &v32, am: f32, b_dp: &v32, bm: f32) -> f32 {
     let c_dp = (a_dp * am + b_dp * bm) / (am + bm);
@@ -94,7 +95,7 @@ pub fn collide(a: &mut Body, b: &mut Body) -> Option<f32> {
         a.p = a.p - correction * bm;
         b.p = b.p + correction * am;
 
-        Some(energy_before - energy_after)
+        Some((energy_before - energy_after) / UNIT_OF_ENERGY)
     } else {
         None
     }
