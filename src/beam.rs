@@ -30,6 +30,12 @@ impl Entity for Beam {
 
     fn think(&mut self, dt: f32, _input: &Input, _hud: &mut Hud, _spawn: &mut Vec<Box<Entity>>) -> State {
         self.body.think(dt);
+
+        self.body.r -= dt;
+        if self.body.r < 0.0 {
+            self.state = State::Dead;
+        }
+
         self.state
     }
 
