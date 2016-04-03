@@ -15,6 +15,7 @@ mod roid;
 mod render;
 mod hud;
 mod beam;
+mod boom;
 
 use std::rc::Rc;
 use render::Renderer;

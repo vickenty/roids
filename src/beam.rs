@@ -1,12 +1,14 @@
-use physics::Body;
+use physics::{ Body, V32 };
 use input::Input;
 use hud::Hud;
 use entity::{ State, Entity };
 use render;
+use boom::Boom;
 
 pub struct Beam {
     body: Body,
     state: State,
+    spawn: Option<V32>,
 }
 
 impl Beam {
@@ -14,6 +16,7 @@ impl Beam {
         Beam {
             body: body,
             state: State::Alive,
+            spawn: None,
         }
     }
 }
@@ -28,7 +31,7 @@ impl Entity for Beam {
         renderer.draw_shape(&mut shape);
     }
 
-    fn think(&mut self, dt: f32, _input: &Input, _hud: &mut Hud, _spawn: &mut Vec<Box<Entity>>) -> State {
+    fn think(&mut self, dt: f32, _input: &Input, _hud: &mut Hud, spawn: &mut Vec<Box<Entity>>) -> State {
         self.body.think(dt);
 
         self.body.r -= dt;
@@ -36,10 +39,18 @@ impl Entity for Beam {
             self.state = State::Dead;
         }
 
+        if let Some(p) = self.spawn.take() {
+            spawn.push(Box::new(Boom::new(p.x, p.y)));
+        }
+
         self.state
     }
 
-    fn collide(&mut self, _other: &mut Entity, _energy: f32) {
+    fn collide(&mut self, other: &mut Entity, _energy: f32) {
+        use cgmath::EuclideanVector;
+        if let Some(ob) = other.body() {
+            self.spawn = Some(ob.p + (self.body.p - ob.p).normalize() * ob.r);
+        }
         self.state = State::Dead;
     }
 

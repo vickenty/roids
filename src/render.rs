@@ -20,6 +20,7 @@ pub mod backend {
 gfx_vertex_struct! {
     Vertex {
         pos: [f32; 3] = "vertex_pos",
+        tex: [f32; 2] = "texture_pos",
     }
 }
 
@@ -27,6 +28,14 @@ impl Vertex {
     pub fn new(p: [f32; 2]) -> Vertex {
         Vertex {
             pos: [ p[0], p[1], 1.0 ],
+            tex: [ 0.0, 0.0 ],
+        }
+    }
+
+    pub fn new_tex(p: [f32; 2], t: [f32; 2]) -> Vertex {
+        Vertex {
+            pos: [ p[0], p[1], 1.0 ],
+            tex: t,
         }
     }
 }
@@ -36,6 +45,7 @@ gfx_pipeline!{
         vbuf: gfx::VertexBuffer<Vertex> = (),
         color: gfx::Global<[f32; 4]> = "shape_color",
         trans: gfx::Global<[[f32; 3]; 3]> = "shape_trans",
+        time: gfx::Global<f32> = "effect_time",
         targ_color: gfx::RenderTarget<gfx::format::Rgba8> = "targ_color",
     }
 }
@@ -92,6 +102,10 @@ pub struct Renderer {
     ui_state: gfx::PipelineState<
         backend::Resources,
         main_pline::Meta>,
+
+    boom_state: gfx::PipelineState<
+        backend::Resources,
+        main_pline::Meta>,
 }
 
 impl Renderer {
@@ -105,20 +119,32 @@ impl Renderer {
         let (window, device, mut factory, targ_color, targ_depth) =
             gfx_window_glutin::init(builder);
 
-        let shaderset = factory.create_shader_set(
+        let main_shaderset = factory.create_shader_set(
             include_bytes!("main_vert.glsl"),
             include_bytes!("main_frag.glsl"),
         ).unwrap();
 
+        let boom_shaders = factory.create_shader_set(
+            include_bytes!("boom_vert.glsl"),
+            include_bytes!("boom_frag.glsl"),
+        ).unwrap();
+
         let main_state = factory.create_pipeline_state(
-            &shaderset,
+            &main_shaderset,
             gfx::Primitive::LineStrip,
             gfx::state::Rasterizer::new_fill(gfx::state::CullFace::Nothing),
             main_pline::new(),
         ).unwrap();
 
         let ui_state = factory.create_pipeline_state(
-            &shaderset,
+            &main_shaderset,
+            gfx::Primitive::TriangleStrip,
+            gfx::state::Rasterizer::new_fill(gfx::state::CullFace::Nothing),
+            main_pline::new(),
+        ).unwrap();
+
+        let boom_state = factory.create_pipeline_state(
+            &boom_shaders,
             gfx::Primitive::TriangleStrip,
             gfx::state::Rasterizer::new_fill(gfx::state::CullFace::Nothing),
             main_pline::new(),
@@ -145,6 +171,7 @@ impl Renderer {
             encoder: command_buffer.into(),
             main_state: main_state,
             ui_state: ui_state,
+            boom_state: boom_state,
         }
     }
 
@@ -158,6 +185,7 @@ impl Renderer {
         let data = main_pline::Data {
             vbuf: vbuf,
             color: color,
+            time: 0.0,
             trans: Matrix3::identity().into(),
             targ_color: self.targ_color.clone(),
         };
@@ -187,6 +215,27 @@ impl Renderer {
         };
 
         self.encoder.draw(&shape.slice, pline_state, &shape.data);
+    }
+
+    pub fn draw_boom(&mut self, x: f32, y: f32, a: f32, r: f32, t: f32) {
+        let vertices = [
+            Vertex::new_tex([x - r, y - r], [ -1.0, -1.0 ]),
+            Vertex::new_tex([x - r, y + r], [ -1.0,  1.0 ]),
+            Vertex::new_tex([x + r, y - r], [  1.0, -1.0 ]),
+            Vertex::new_tex([x + r, y + r], [  1.0,  1.0 ]),
+        ];
+
+        let (vbuf, slice) = self.factory.create_vertex_buffer(&vertices);
+
+        let data = main_pline::Data {
+            vbuf: vbuf,
+            color: [ 1.0, 1.0, 1.0, 1.0 ],
+            time: t,
+            trans: self.transform.into(),
+            targ_color: self.targ_color.clone(),
+        };
+
+        self.encoder.draw(&slice, &self.boom_state, &data);
     }
 
     pub fn clear(&mut self) {
