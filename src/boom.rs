@@ -3,6 +3,7 @@ use physics;
 use render;
 use hud::Hud;
 use input::Input;
+use rand::{ thread_rng, Rng };
 
 pub struct Boom {
     x: f32,
@@ -12,9 +13,10 @@ pub struct Boom {
 
 impl Boom {
     pub fn new(x: f32, y: f32) -> Boom {
+        let mut rng = thread_rng();
         Boom {
-            x: x,
-            y: y,
+            x: x + rng.gen_range(-5.0, 5.0),
+            y: y + rng.gen_range(-5.0, 5.0),
             t: 0.0,
         }
     }
