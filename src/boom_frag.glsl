@@ -4,7 +4,7 @@ varying vec2 uv;
 uniform float effect_time;
 
 const float GROW = 0.0;
-const float THIN = 0.05;
+const float THIN = 0.1;
 const float DONE = 0.2;
 
 const vec4 COLOR = vec4(1, 1, 0, 1);
