@@ -121,7 +121,6 @@ impl Ship
         let meta = &self.meta;
 
         if self.fire_delay >= 0.0 {
-            self.fire_delay -= dt;
             return;
         }
 
@@ -172,6 +171,8 @@ impl Entity for Ship
         }
 
         self.body.think(dt);
+
+        self.fire_delay -= dt;
 
         let over = self.body.da.abs() - self.meta.angular_limit;
         if over > 0.0 {
