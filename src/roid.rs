@@ -38,7 +38,7 @@ impl Roid {
 
         let mut p = Vec::new();
         for _ in 0..n {
-            p.push([ rng.gen_range(0.0, 2.0), rng.gen_range(size / 2.0, size) ]);
+            p.push([ rng.gen_range(0.0, 2.0), rng.gen_range(size * 0.8, size * 1.2 ) ]);
         }
         p.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
