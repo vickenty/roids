@@ -4,7 +4,7 @@ use gfx_window_glutin;
 
 use gfx::traits::Device;
 use gfx::traits::FactoryExt;
-use cgmath::{ SquareMatrix, Matrix3, vec3, rad };
+use cgmath::{ Decomposed, Rotation3, Basis3, SquareMatrix, Matrix4, vec3, rad };
 
 use std::f32::consts::PI;
 
@@ -20,22 +20,13 @@ pub mod backend {
 gfx_vertex_struct! {
     Vertex {
         pos: [f32; 3] = "vertex_pos",
-        tex: [f32; 2] = "texture_pos",
     }
 }
 
 impl Vertex {
     pub fn new(p: [f32; 2]) -> Vertex {
         Vertex {
-            pos: [ p[0], p[1], 1.0 ],
-            tex: [ 0.0, 0.0 ],
-        }
-    }
-
-    pub fn new_tex(p: [f32; 2], t: [f32; 2]) -> Vertex {
-        Vertex {
-            pos: [ p[0], p[1], 1.0 ],
-            tex: t,
+            pos: [ p[0], p[1], 0.0 ],
         }
     }
 }
@@ -44,7 +35,7 @@ gfx_pipeline!{
     main_pline {
         vbuf: gfx::VertexBuffer<Vertex> = (),
         color: gfx::Global<[f32; 4]> = "shape_color",
-        trans: gfx::Global<[[f32; 3]; 3]> = "shape_trans",
+        trans: gfx::Global<[[f32; 4]; 4]> = "shape_trans",
         time: gfx::Global<f32> = "effect_time",
         targ_color: gfx::RenderTarget<gfx::format::Rgba8> = "targ_color",
     }
@@ -66,18 +57,22 @@ pub struct Shape {
     ty: ShapeType,
     data: main_pline::Data<backend::Resources>,
     slice: gfx::Slice<backend::Resources>,
-    transform: Matrix3<f32>,
+    transform: Matrix4<f32>,
 }
 
 impl Shape {
     pub fn set_transform(&mut self, x: f32, y: f32, r: f32) {
-        self.transform = Matrix3::from_angle_z(rad(r * PI));
-        self.transform.z = vec3(x, y, 0.0);
+        let d = Decomposed {
+            scale: 1.0,
+            rot: Basis3::from_angle_z(rad(r * PI)),
+            disp: vec3(x, y, 0.0),
+        };
+        self.transform = Matrix4::from(d).into();
     }
 }
 
 pub struct Renderer {
-    transform: Matrix3<f32>,
+    transform: Matrix4<f32>,
 
     window: glutin::Window,
     device: backend::Device,
@@ -103,9 +98,7 @@ pub struct Renderer {
         backend::Resources,
         main_pline::Meta>,
 
-    boom_state: gfx::PipelineState<
-        backend::Resources,
-        main_pline::Meta>,
+    boom_fx: main_pline::Bundle<backend::Resources>,
 }
 
 impl Renderer {
@@ -143,26 +136,43 @@ impl Renderer {
             main_pline::new(),
         ).unwrap();
 
-        let boom_state = factory.create_pipeline_state(
-            &boom_shaders,
-            gfx::Primitive::TriangleStrip,
-            gfx::state::Rasterizer::new_fill(gfx::state::CullFace::Nothing),
-            main_pline::new(),
-        ).unwrap();
+        let boom_fx = {
+            let state = factory.create_pipeline_state(
+                &boom_shaders,
+                gfx::Primitive::TriangleStrip,
+                gfx::state::Rasterizer::new_fill(gfx::state::CullFace::Nothing),
+                main_pline::new(),
+            ).unwrap();
+
+            let vertices = [
+                Vertex::new([-1.0, -1.0]),
+                Vertex::new([-1.0,  1.0]),
+                Vertex::new([ 1.0, -1.0]),
+                Vertex::new([ 1.0,  1.0]),
+            ];
+
+            let (vbuf, slice) = factory.create_vertex_buffer(&vertices);
+
+            let data = main_pline::Data {
+                vbuf: vbuf,
+                color: [ 1.0, 1.0, 1.0, 1.0 ],
+                time: 0.0,
+                trans: Matrix4::identity().into(),
+                targ_color: targ_color.clone(),
+            };
+
+            main_pline::bundle(slice, state, data)
+        };
 
         let command_buffer = factory.create_command_buffer();
 
         let transform = {
             let scl = 1.0 / 300.0;
-            [
-                [ scl, 0.0, 0.0 ],
-                [ 0.0, scl, 0.0 ],
-                [ 0.0, 0.0, 0.0 ],
-            ]
+            Matrix4::from_scale(scl)
         };
 
         Renderer {
-            transform: transform.into(),
+            transform: transform,
             window: window,
             device: device,
             factory: factory,
@@ -171,7 +181,7 @@ impl Renderer {
             encoder: command_buffer.into(),
             main_state: main_state,
             ui_state: ui_state,
-            boom_state: boom_state,
+            boom_fx: boom_fx,
         }
     }
 
@@ -186,7 +196,7 @@ impl Renderer {
             vbuf: vbuf,
             color: color,
             time: 0.0,
-            trans: Matrix3::identity().into(),
+            trans: Matrix4::identity().into(),
             targ_color: self.targ_color.clone(),
         };
 
@@ -194,7 +204,7 @@ impl Renderer {
             ty: ty,
             data: data,
             slice: slice,
-            transform: Matrix3::identity(),
+            transform: Matrix4::identity(),
         }
     }
 
@@ -218,24 +228,14 @@ impl Renderer {
     }
 
     pub fn draw_boom(&mut self, x: f32, y: f32, a: f32, r: f32, t: f32) {
-        let vertices = [
-            Vertex::new_tex([x - r, y - r], [ -1.0, -1.0 ]),
-            Vertex::new_tex([x - r, y + r], [ -1.0,  1.0 ]),
-            Vertex::new_tex([x + r, y - r], [  1.0, -1.0 ]),
-            Vertex::new_tex([x + r, y + r], [  1.0,  1.0 ]),
-        ];
-
-        let (vbuf, slice) = self.factory.create_vertex_buffer(&vertices);
-
-        let data = main_pline::Data {
-            vbuf: vbuf,
-            color: [ 1.0, 1.0, 1.0, 1.0 ],
-            time: t,
-            trans: self.transform.into(),
-            targ_color: self.targ_color.clone(),
+        let d = Decomposed {
+            scale: r,
+            rot: Basis3::from_angle_z(rad(a * PI)),
+            disp: vec3(x, y, 0.0),
         };
-
-        self.encoder.draw(&slice, &self.boom_state, &data);
+        self.boom_fx.data.trans = (self.transform * Matrix4::from(d)).into();
+        self.boom_fx.data.time = t;
+        self.boom_fx.encode(&mut self.encoder);
     }
 
     pub fn clear(&mut self) {

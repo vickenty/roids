@@ -1,8 +1,8 @@
 #version 110
 
 attribute vec3 vertex_pos;
-uniform mat3 shape_trans;
+uniform mat4 shape_trans;
 
 void main() {
-    gl_Position = vec4(shape_trans * vertex_pos, 1);
+    gl_Position = shape_trans * vec4(vertex_pos, 1);
 }
