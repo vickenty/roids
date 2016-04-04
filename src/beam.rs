@@ -40,7 +40,7 @@ impl Entity for Beam {
         }
 
         if let Some(p) = self.spawn.take() {
-            spawn.push(Box::new(Boom::new(p.x, p.y)));
+            spawn.push(Box::new(Boom::new(p.x, p.y, self.body.a)));
         }
 
         self.state
