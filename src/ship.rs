@@ -166,11 +166,13 @@ impl Entity for Ship
         if input.pressed(Key::Right) {
             self.turn(dt, -1.0);
         }
+
+        self.body.think(dt);
+
         if input.pressed(Key::Fire) {
             self.fire(dt, spawn);
         }
 
-        self.body.think(dt);
 
         self.fire_delay -= dt;
 
