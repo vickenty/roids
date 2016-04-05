@@ -14,6 +14,16 @@ pub struct Body {
     pub da: f32,
 }
 
+fn wrap(v: &mut f32, lo: f32, hi: f32) {
+    let d = hi - lo;
+    if *v < lo {
+        *v += d;
+    }
+    if *v > hi {
+        *v -= d;
+    }
+}
+
 impl Body {
     pub fn think(&mut self, dt: f32) {
         self.p = self.p + self.dp * dt;
@@ -24,6 +34,10 @@ impl Body {
         if self.a < 0.0 {
             self.a += 2.0;
         }
+
+        /* FIXME */
+        wrap(&mut self.p.x, -300.0, 300.0);
+        wrap(&mut self.p.y, -300.0, 300.0);
     }
 
     pub fn apply_force_abs(&mut self, f: V32) {
