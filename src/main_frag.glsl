@@ -1,7 +1,9 @@
-#version 110
+#version 150
 
 uniform vec4 shape_color;
 
+out vec4 targ_color;
+
 void main() {
-    gl_FragColor = shape_color;
+    targ_color = shape_color;
 }
