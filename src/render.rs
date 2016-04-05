@@ -106,6 +106,7 @@ impl Renderer {
         let builder = glutin::WindowBuilder::new()
             .with_title("Roids".to_owned())
             .with_gl(glutin::GL_CORE)
+            /* FIXME: hardcoded world size */
             .with_dimensions(600, 600)
             .with_vsync();
 
@@ -167,6 +168,7 @@ impl Renderer {
         let command_buffer = factory.create_command_buffer();
 
         let transform = {
+            /* FIXME: hardcoded world size */
             let scl = 1.0 / 300.0;
             Matrix4::from_scale(scl)
         };

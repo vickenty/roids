@@ -35,7 +35,7 @@ impl Body {
             self.a += 2.0;
         }
 
-        /* FIXME */
+        /* FIXME: hardcoded world size */
         wrap(&mut self.p.x, -300.0, 300.0);
         wrap(&mut self.p.y, -300.0, 300.0);
     }
