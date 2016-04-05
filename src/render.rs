@@ -37,7 +37,7 @@ gfx_pipeline!{
         color: gfx::Global<[f32; 4]> = "shape_color",
         trans: gfx::Global<[[f32; 4]; 4]> = "shape_trans",
         time: gfx::Global<f32> = "effect_time",
-        targ_color: gfx::RenderTarget<gfx::format::Rgba8> = "targ_color",
+        targ_color: gfx::RenderTarget<gfx::format::Rgba8> = "o_Color",
     }
 }
 
