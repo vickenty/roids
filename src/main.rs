@@ -31,10 +31,8 @@ fn main() {
     let ship_meta = Rc::new(ship::ShipMeta::default());
     let ship = ship::Ship::new(vec2(-100.0, 0.0), ship_meta.clone());
 
-    let roid = roid::Roid::new(
-        physics::Body { p: vec2(100.0, 0.0), r: 50.0, ..Default::default() },
-        50.0
-    );
+    let rgen = roid::Generator::new();
+    let roid = rgen.create_at(vec2(100.0, 0.0));
 
     engine.add(Box::new(ship));
     engine.add(Box::new(roid));

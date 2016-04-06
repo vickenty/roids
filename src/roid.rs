@@ -1,12 +1,26 @@
 use rand;
 use rand::Rng;
-use cgmath::{ Vector2 };
+use cgmath::{ Vector2, vec2 };
 
 use input::Input;
 use entity::{ Entity, State };
 use physics::{ Body };
 use hud::Hud;
 use render;
+
+pub struct Generator;
+
+impl Generator {
+    pub fn new() -> Generator {
+        Generator
+    }
+
+    pub fn create_at(&self, p: Vector2<f32>) -> Roid {
+        let r = 50.0;
+        let body = Body { p: p, r: r, ..Default::default() };
+        Roid::new(body, r)
+    }
+}
 
 pub struct Roid
 {
@@ -19,7 +33,7 @@ pub struct Roid
 }
 
 impl Roid {
-    pub fn new(body: Body, size: f32) -> Roid {
+    fn new(body: Body, size: f32) -> Roid {
         Roid {
             body: body,
             state: State::Alive,
