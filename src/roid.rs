@@ -42,7 +42,7 @@ impl Roid {
         }
     }
 
-    pub fn make_shape(&self, renderer: &mut render::Renderer) -> render::Shape {
+    fn make_shape(&self, renderer: &mut render::Renderer) -> render::Shape {
         let mut rng = rand::thread_rng();
 
         let size = self.body.r;
