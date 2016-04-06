@@ -28,7 +28,6 @@ pub struct Roid
     state: State,
     shape: Option<render::Shape>,
 
-    size: f32,
     health: f32,
 }
 
@@ -39,7 +38,6 @@ impl Roid {
             state: State::Alive,
             shape: None,
 
-            size: size,
             health: size / 20.0,
         }
     }
@@ -47,7 +45,7 @@ impl Roid {
     pub fn make_shape(&self, renderer: &mut render::Renderer) -> render::Shape {
         let mut rng = rand::thread_rng();
 
-        let size = self.size;
+        let size = self.body.r;
         let n = rng.gen_range(size as u32 / 2, size as u32);
 
         let mut p = Vec::new();
@@ -65,7 +63,7 @@ impl Roid {
     fn explode(&mut self, spawn: &mut Vec<Box<Entity>>) {
         use std::f32::consts::PI;
 
-        if self.size <= 20.0 {
+        if self.body.r <= 20.0 {
             return;
         }
 
@@ -75,8 +73,8 @@ impl Roid {
         for p in 0..pieces {
             let a = (p as f32) * 2.0 * angle + rng.gen_range(-angle/2.0, angle/2.0);
             let dp = Vector2::new(a.cos(), a.sin());
-            let p = self.body.p + dp * self.size;
-            let r = self.size / 2.0;
+            let p = self.body.p + d * self.body.r;
+            let r = self.body.r / 2.0;
             let da = rng.gen_range(-0.1, 0.1);
             let body = Body { p: p, dp: dp, da: da, r: r, ..Default::default() };
             let roid = Roid::new(body, r);
