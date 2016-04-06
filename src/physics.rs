@@ -36,8 +36,8 @@ impl Body {
         }
 
         /* FIXME: hardcoded world size */
-        wrap(&mut self.p.x, -300.0, 300.0);
-        wrap(&mut self.p.y, -300.0, 300.0);
+        wrap(&mut self.p.x, -350.0, 350.0);
+        wrap(&mut self.p.y, -350.0, 350.0);
     }
 
     pub fn apply_force_abs(&mut self, f: V32) {
