@@ -72,9 +72,10 @@ impl Roid {
         let angle = PI / pieces as f32;
         for p in 0..pieces {
             let a = (p as f32) * 2.0 * angle + rng.gen_range(-angle/2.0, angle/2.0);
-            let dp = Vector2::new(a.cos(), a.sin());
+            let d = vec2(a.cos(), a.sin());
             let p = self.body.p + d * self.body.r;
             let r = self.body.r / 2.0;
+            let dp = self.body.dp + d;
             let da = rng.gen_range(-0.1, 0.1);
             let body = Body { p: p, dp: dp, da: da, r: r, ..Default::default() };
             let roid = Roid::new(body, r);
