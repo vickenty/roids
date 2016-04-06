@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use cgmath::vec2;
+use cgmath::{ Vector2, vec2 };
 use input::{ Key, Input };
 use physics::Body;
 use entity::{ Entity, State };
@@ -9,6 +9,8 @@ use hud::Hud;
 use beam::Beam;
 
 pub struct ShipMeta {
+    body_radius: f32,
+
     init_score: u32,
     init_power: u32,
 
@@ -33,6 +35,8 @@ pub struct ShipMeta {
 impl Default for ShipMeta {
     fn default() -> ShipMeta {
         ShipMeta {
+            body_radius: 20.0,
+
             init_score: 0,
             init_power: 0,
 
@@ -74,10 +78,14 @@ pub struct Ship
 
 impl Ship
 {
-    pub fn new(body: Body, meta: Rc<ShipMeta>) -> Ship
+    pub fn new(p: Vector2<f32>, meta: Rc<ShipMeta>) -> Ship
     {
         Ship {
-            body: body,
+            body: Body {
+                p: p,
+                r: meta.body_radius,
+                ..Default::default()
+            },
             state: State::Alive,
 
             score: meta.init_score,

@@ -29,9 +29,7 @@ fn main() {
     let mut engine = entity::Engine::new();
 
     let ship_meta = Rc::new(ship::ShipMeta::default());
-    let ship = ship::Ship::new(
-        physics::Body { p: vec2(-100.0, 0.0), r: 20.0, ..Default::default() },
-        ship_meta.clone());
+    let ship = ship::Ship::new(vec2(-100.0, 0.0), ship_meta.clone());
 
     let roid = roid::Roid::new(
         physics::Body { p: vec2(100.0, 0.0), r: 50.0, ..Default::default() },
