@@ -7,6 +7,7 @@ extern crate gfx_device_gl;
 extern crate time;
 extern crate rand;
 
+mod timer;
 mod input;
 mod physics;
 mod entity;
@@ -27,6 +28,7 @@ fn main() {
     let mut renderer = Renderer::new();
     let mut input = input::Input::new();
     let mut engine = entity::Engine::new();
+    let mut timer = timer::Timer::new(30.0, 61.0);
 
     let ship_meta = Rc::new(ship::ShipMeta::default());
     let ship = ship::Ship::new(vec2(-100.0, 0.0), ship_meta.clone());
@@ -39,12 +41,9 @@ fn main() {
 
     let mut hud = hud::Hud::new();
 
-    let mut t0 = time::precise_time_s();
+    timer.are_we_yet();
 
     'main: loop {
-        let t1 = time::precise_time_s();
-        let dt = t1 - t0;
-
         for ev in renderer.get_window().poll_events() {
             if let Event::Closed = ev {
                 break 'main;
@@ -52,16 +51,13 @@ fn main() {
             input.handle_event(&ev);
         }
 
-        engine.think(dt as f32, &input, &mut hud);
+        if let Some(dt) = timer.are_we_yet() {
+            engine.think(dt as f32, &input, &mut hud);
 
-        renderer.clear();
-
-        engine.draw(&mut renderer);
-
-        hud.draw(&mut renderer);
-
-        renderer.finish();
-
-        t0 = t1;
+            renderer.clear();
+            engine.draw(&mut renderer);
+            hud.draw(&mut renderer);
+            renderer.finish();
+        }
     }
 }
