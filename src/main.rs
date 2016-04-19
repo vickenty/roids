@@ -1,3 +1,5 @@
+#![feature(non_ascii_idents)]
+
 extern crate cgmath;
 #[macro_use]
 extern crate gfx;

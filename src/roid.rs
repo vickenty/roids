@@ -17,7 +17,7 @@ impl Generator {
 
     pub fn create_at(&self, p: Vector2<f32>) -> Roid {
         let r = 50.0;
-        let body = Body { p: p, r: r, ..Default::default() };
+        let body = Body::init(Body { p: p, r: r, ..Default::default() });
         Roid::new(body, r)
     }
 }
@@ -77,7 +77,7 @@ impl Roid {
             let r = self.body.r / 2.0;
             let dp = self.body.dp + d;
             let da = rng.gen_range(-0.1, 0.1);
-            let body = Body { p: p, dp: dp, da: da, r: r, ..Default::default() };
+            let body = Body::init(Body { p: p, dp: dp, da: da, r: r, ..Default::default() });
             let roid = Roid::new(body, r);
             spawn.push(Box::new(roid));
         }

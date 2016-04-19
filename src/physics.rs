@@ -9,6 +9,7 @@ pub struct Body {
     pub p: V32,
     pub a: f32,
     pub r: f32,
+    pub ρ: f32,
     pub m: f32,
     pub dp: V32,
     pub da: f32,
@@ -25,6 +26,13 @@ fn wrap(v: &mut f32, lo: f32, hi: f32) {
 }
 
 impl Body {
+    pub fn init(init: Body) -> Body {
+        Body {
+            m: init.ρ * init.r.powi(3),
+            ..init
+        }
+    }
+
     pub fn think(&mut self, dt: f32) {
         self.p = self.p + self.dp * dt;
         self.a = self.a + self.da * dt;
@@ -70,7 +78,8 @@ impl Default for Body {
             p: vec2(0.0, 0.0),
             a: 0.0,
             r: 0.0,
-            m: 1.0,
+            ρ: 1.0,
+            m: 0.0,
             dp: vec2(0.0, 0.0),
             da: 0.0,
         }
@@ -80,9 +89,9 @@ impl Default for Body {
 const REST_FACTOR: f32 = 0.8;
 const UNIT_OF_ENERGY: f32 = 1e8;
 
-fn energy(a_dp: &V32, am: f32, b_dp: &V32, bm: f32) -> f32 {
-    let c_dp = (a_dp * am + b_dp * bm) / (am + bm);
-    (a_dp - c_dp).length2() * am + (b_dp - c_dp).length2() * bm
+fn energy(a: &Body, b: &Body) -> f32 {
+    let c_dp = (a.dp * a.m + b.dp * b.m) / (a.m + b.m);
+    (a.dp - c_dp).length2() * a.m + (b.dp - c_dp).length2() * b.m
 }
 
 pub fn collide(a: &mut Body, b: &mut Body) -> Option<f32> {
@@ -90,22 +99,19 @@ pub fn collide(a: &mut Body, b: &mut Body) -> Option<f32> {
     let dist = dp.length() - a.r - b.r;
 
     if dist < 0.0 {
-        let am = a.r.powi(3);
-        let bm = b.r.powi(3);
-
-        let energy_before = energy(&a.dp, am, &b.dp, bm);
+        let energy_before = energy(&a, &b);
 
         let dv = a.dp - b.dp;
-        let change = dp * dv.dot(dp) / dp.length2() * 2.0 / (am + bm) * REST_FACTOR;
+        let change = dp * dv.dot(dp) / dp.length2() * 2.0 / (a.m + b.m) * REST_FACTOR;
 
-        a.dp = a.dp - change * bm;
-        b.dp = b.dp + change * am;
+        a.dp = a.dp - change * b.m;
+        b.dp = b.dp + change * a.m;
 
-        let energy_after = energy(&a.dp, am, &b.dp, bm);
+        let energy_after = energy(&a, &b);
 
-        let correction = dp.normalize() * dist / (am + bm);
-        a.p = a.p - correction * bm;
-        b.p = b.p + correction * am;
+        let correction = dp.normalize() * dist / (a.m + b.m);
+        a.p = a.p - correction * b.m;
+        b.p = b.p + correction * a.m;
 
         Some((energy_before - energy_after) / UNIT_OF_ENERGY)
     } else {

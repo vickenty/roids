@@ -43,10 +43,10 @@ impl Default for ShipMeta {
             max_health: 15.0,
             max_energy: 50.0,
 
-            linear_thrust: 200.0,
+            linear_thrust: 1.6e6,
             linear_power: 3.0,
 
-            angular_thrust: 4.0,
+            angular_thrust: 3.2e4,
             angular_power: 1.5,
             angular_limit: 4.0,
             angular_damage: 0.01,
@@ -81,11 +81,11 @@ impl Ship
     pub fn new(p: Vector2<f32>, meta: Rc<ShipMeta>) -> Ship
     {
         Ship {
-            body: Body {
+            body: Body::init(Body {
                 p: p,
                 r: meta.body_radius,
                 ..Default::default()
-            },
+            }),
             state: State::Alive,
 
             score: meta.init_score,
@@ -136,13 +136,13 @@ impl Ship
 
         let fwd = self.body.to_world(vec2(1.0, 0.0));
         let ofs = self.body.r + meta.beam_radius + 2.5;
-        let body = Body {
+        let body = Body::init(Body {
             p: self.body.p + fwd * ofs,
             dp: self.body.dp + fwd * meta.beam_speed,
             a: self.body.a,
             r: meta.beam_radius,
             ..Default::default()
-        };
+        });
         let beam = Beam::new(body);
         spawn.push(Box::new(beam));
     }
