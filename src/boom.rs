@@ -40,6 +40,5 @@ impl Entity for Boom {
     }
 
     fn collide(&mut self, _: &mut Entity, _: f32) {}
-    fn take_damage(&mut self, _: f32) {}
     fn body(&mut self) -> Option<&mut physics::Body> { None }
 }

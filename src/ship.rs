@@ -146,6 +146,15 @@ impl Ship
         let beam = Beam::new(body);
         spawn.push(Box::new(beam));
     }
+
+    fn damage(&mut self, damage: f32) {
+        if damage >= self.health {
+            self.health = 0.0;
+            self.state = State::Dead;
+        } else {
+            self.health -= damage;
+        }
+    }
 }
 
 impl Entity for Ship
@@ -187,7 +196,7 @@ impl Entity for Ship
         let over = self.body.da.abs() - self.meta.angular_limit;
         if over > 0.0 {
             let damage = over * self.meta.angular_damage;
-            self.take_damage(damage);
+            self.damage(damage);
         }
 
         hud.update(self.energy / self.meta.max_energy,
@@ -197,16 +206,7 @@ impl Entity for Ship
     }
 
     fn collide(&mut self, _other: &mut Entity, energy: f32) {
-        self.take_damage(energy);
-    }
-
-    fn take_damage(&mut self, damage: f32) {
-        if damage >= self.health {
-            self.health = 0.0;
-            self.state = State::Dead;
-        } else {
-            self.health -= damage;
-        }
+        self.damage(energy);
     }
 
     fn body(&mut self) -> Option<&mut Body> {

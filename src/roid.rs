@@ -82,6 +82,10 @@ impl Roid {
             spawn.push(Box::new(roid));
         }
     }
+
+    fn damage(&mut self, damage: f32) {
+        self.health -= damage;
+    }
 }
 
 impl Entity for Roid {
@@ -107,11 +111,7 @@ impl Entity for Roid {
     }
 
     fn collide(&mut self, _other: &mut Entity, energy: f32) {
-        self.take_damage(energy);
-    }
-
-    fn take_damage(&mut self, damage: f32) {
-        self.health -= damage;
+        self.damage(energy);
     }
 
     fn body(&mut self) -> Option<&mut Body> {

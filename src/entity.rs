@@ -13,7 +13,6 @@ pub trait Entity {
     fn draw(&mut self, renderer: &mut render::Renderer);
     fn think(&mut self, dt: f32, &Input, hud: &mut Hud, born: &mut Vec<Box<Entity>>) -> State;
     fn collide(&mut self, other: &mut Entity, energy: f32);
-    fn take_damage(&mut self, f32);
     fn body(&mut self) -> Option<&mut physics::Body>;
 }
 

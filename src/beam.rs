@@ -54,9 +54,6 @@ impl Entity for Beam {
         self.state = State::Dead;
     }
 
-    fn take_damage(&mut self, _damage: f32) {
-    }
-
     fn body(&mut self) -> Option<&mut Body> {
         Some(&mut self.body)
     }
