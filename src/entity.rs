@@ -14,6 +14,7 @@ pub trait Entity {
     fn think(&mut self, dt: f32, &Input, hud: &mut Hud, born: &mut Vec<Box<Entity>>) -> State;
     fn collide(&mut self, other: &mut Entity, energy: f32);
     fn body(&mut self) -> Option<&mut physics::Body>;
+    fn is_beam(&self) -> bool { false }
 }
 
 pub struct Engine {

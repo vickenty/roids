@@ -48,6 +48,9 @@ impl Entity for Beam {
 
     fn collide(&mut self, other: &mut Entity, _energy: f32) {
         use cgmath::EuclideanVector;
+        if other.is_beam() {
+            return;
+        }
         if let Some(ob) = other.body() {
             self.spawn = Some(ob.p + (self.body.p - ob.p).normalize() * ob.r);
         }
@@ -57,4 +60,6 @@ impl Entity for Beam {
     fn body(&mut self) -> Option<&mut Body> {
         Some(&mut self.body)
     }
+
+    fn is_beam(&self) -> bool { true }
 }
