@@ -99,6 +99,10 @@ pub fn collide(a: &mut Body, b: &mut Body) -> Option<f32> {
     let dist = dp.length() - a.r - b.r;
 
     if dist < 0.0 {
+        if a.m == 0.0 || b.m == 0.0 {
+            return Some(0.0);
+        }
+
         let energy_before = energy(&a, &b);
 
         let dv = a.dp - b.dp;
